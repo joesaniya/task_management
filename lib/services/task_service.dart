@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:objectbox/objectbox.dart';
 import 'package:sqflite/sqflite.dart';
@@ -32,10 +34,50 @@ class TaskService {
   }
 
   Future<void> syncTasksWithFirestore() async {
+    log('calling syncTasksWithFirestore');
     final box = store.box<Task>();
     final tasks = box.getAll();
-
     for (var task in tasks) {
+      log('task:$task');
+      if (task.id == 0) {
+        final docRef = await firestore.collection('tasks').add({
+          'title': task.title,
+          'description': task.description,
+          'priority': task.priority,
+          'status': task.status,
+          'endDate': task.endDate.toIso8601String(),
+          'lastUpdated': task.lastUpdated.toIso8601String(),
+        });
+        task.id = int.parse(docRef.id);
+        await box.put(task);
+      } else {
+        final docRef = firestore.collection('tasks').doc(task.id.toString());
+        final doc = await docRef.get();
+        if (!doc.exists) {
+          await docRef.set({
+            'title': task.title,
+            'description': task.description,
+            'priority': task.priority,
+            'status': task.status,
+            'endDate': task.endDate.toIso8601String(),
+            'lastUpdated': task.lastUpdated.toIso8601String(),
+          });
+        } else {
+          final data = doc.data()!;
+          final task = Task(
+            id: int.parse(doc.id),
+            title: data['title'],
+            description: data['description'],
+            priority: data['priority'],
+            status: data['status'],
+            endDate: DateTime.parse(data['endDate']),
+            lastUpdated: DateTime.parse(data['lastUpdated']),
+          );
+          await box.put(task);
+        }
+      }
+    }
+    /*  for (var task in tasks) {
       if (task.status == 'Completed') {
         await firestore.collection('tasks').doc(task.id.toString()).set({
           'title': task.title,
@@ -47,6 +89,7 @@ class TaskService {
         });
       }
     }
+ */
   }
 
   Future<void> exportToSQLite() async {
@@ -94,4 +137,3 @@ class TaskService {
     }
   }
 }
-

@@ -76,6 +76,7 @@ class MyApp extends StatelessWidget {
     return ChangeNotifierProvider(
       create: (context) => TaskProvider(taskService: taskService),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Task Management App',
         theme: ThemeData(primarySwatch: Colors.blue),
         home: TaskListScreen(),

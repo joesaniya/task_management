@@ -12,7 +12,9 @@ class TaskListScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Consumer<TaskProvider>(
       builder: (context, taskProvider, child) {
-        taskProvider.fetchTasks();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          taskProvider.fetchTasks();
+        });
 
         List<Task> overdueTasks = taskProvider.tasks
             .where((task) =>
@@ -31,7 +33,16 @@ class TaskListScreen extends StatelessWidget {
         }
 
         return Scaffold(
-          appBar: AppBar(title: Text('Task List')),
+          appBar: AppBar(
+            title: Text('Task List'),
+            actions: [
+              IconButton(
+                  onPressed: () {
+                    taskProvider.syncTasks();
+                  },
+                  icon: Icon(Icons.cloud))
+            ],
+          ),
           body: Column(
             children: [
               WaveWidget(
