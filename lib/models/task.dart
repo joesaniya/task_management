@@ -8,6 +8,7 @@ class Task {
   String priority;
   String status;
   DateTime endDate;
+  DateTime lastUpdated;
 
   Task({
     this.id = 0,
@@ -16,6 +17,7 @@ class Task {
     required this.priority,
     required this.status,
     required this.endDate,
+    required this.lastUpdated,
   });
 
   Map<String, dynamic> toMap() {
@@ -25,17 +27,18 @@ class Task {
       'priority': priority,
       'status': status,
       'endDate': endDate.toIso8601String(),
+      'lastUpdated': lastUpdated.toIso8601String()
     };
   }
 
   factory Task.fromMap(Map<String, dynamic> map) {
     return Task(
-      id: map['id'],
-      title: map['title'],
-      description: map['description'],
-      priority: map['priority'],
-      status: map['status'],
-      endDate: DateTime.parse(map['endDate']),
-    );
+        id: map['id'],
+        title: map['title'],
+        description: map['description'],
+        priority: map['priority'],
+        status: map['status'],
+        endDate: DateTime.parse(map['endDate']),
+        lastUpdated: DateTime.parse(map['lastUpdated']));
   }
 }

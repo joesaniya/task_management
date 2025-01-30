@@ -5,10 +5,9 @@ import '../models/task.dart';
 
 class TaskProvider with ChangeNotifier {
   final TaskService taskService;
+  List<Task> _tasks = [];
 
   TaskProvider({required this.taskService});
-
-  List<Task> _tasks = [];
 
   List<Task> get tasks => _tasks;
 
@@ -23,7 +22,7 @@ class TaskProvider with ChangeNotifier {
   }
 
   void updateTask(Task task) {
-    taskService.addTask(task);
+    taskService.updateTask(task);
     fetchTasks();
   }
 
@@ -34,5 +33,14 @@ class TaskProvider with ChangeNotifier {
 
   void syncTasks() async {
     await taskService.syncTasksWithFirestore();
+  }
+
+  Future<void> exportTasks() async {
+    await taskService.exportToSQLite();
+  }
+
+  Future<void> importTasks() async {
+    await taskService.importFromSQLite();
+    fetchTasks();
   }
 }

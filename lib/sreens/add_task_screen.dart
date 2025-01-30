@@ -45,13 +45,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   void _saveTask() {
     final task = Task(
-      id: widget.task?.id ?? 0,
-      title: _titleController.text,
-      description: _descriptionController.text,
-      priority: _priority,
-      status: widget.task?.status ?? 'Pending',
-      endDate: _endDate,
-    );
+        id: widget.task?.id ?? 0,
+        title: _titleController.text,
+        description: _descriptionController.text,
+        priority: _priority,
+        status: widget.task?.status ?? 'Pending',
+        endDate: _endDate,
+        lastUpdated: DateTime.now());
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
     if (widget.task != null) {
       taskProvider.updateTask(task);

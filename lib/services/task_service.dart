@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:objectbox/objectbox.dart';
+import 'package:sqflite/sqflite.dart';
 import '../models/task.dart';
 
 class TaskService {
@@ -10,6 +11,13 @@ class TaskService {
 
   Future<void> addTask(Task task) async {
     final box = store.box<Task>();
+    task.lastUpdated = DateTime.now();
+    await box.put(task);
+  }
+
+  Future<void> updateTask(Task task) async {
+    final box = store.box<Task>();
+    task.lastUpdated = DateTime.now();
     await box.put(task);
   }
 
@@ -35,8 +43,55 @@ class TaskService {
           'priority': task.priority,
           'status': task.status,
           'endDate': task.endDate.toIso8601String(),
+          'lastUpdated': task.lastUpdated.toIso8601String(),
         });
       }
     }
   }
+
+  Future<void> exportToSQLite() async {
+    final box = store.box<Task>();
+    final tasks = box.getAll();
+    final databasePath = await getDatabasesPath();
+    final db = await openDatabase('$databasePath/tasks.db', version: 1,
+        onCreate: (db, version) async {
+      await db.execute(
+          'CREATE TABLE tasks (id INTEGER PRIMARY KEY, title TEXT, description TEXT, priority TEXT, status TEXT, endDate TEXT, lastUpdated TEXT)');
+    });
+
+    for (var task in tasks) {
+      await db.insert('tasks', {
+        'id': task.id,
+        'title': task.title,
+        'description': task.description,
+        'priority': task.priority,
+        'status': task.status,
+        'endDate': task.endDate.toIso8601String(),
+        'lastUpdated': task.lastUpdated.toIso8601String(),
+      });
+    }
+    await db.close();
+  }
+
+  Future<void> importFromSQLite() async {
+    final databasePath = await getDatabasesPath();
+    final db = await openDatabase('$databasePath/tasks.db');
+    final List<Map<String, dynamic>> tasksData = await db.query('tasks');
+    await db.close();
+
+    final box = store.box<Task>();
+    for (var data in tasksData) {
+      final task = Task(
+        id: data['id'],
+        title: data['title'],
+        description: data['description'],
+        priority: data['priority'],
+        status: data['status'],
+        endDate: DateTime.parse(data['endDate']),
+        lastUpdated: DateTime.parse(data['lastUpdated']),
+      );
+      await box.put(task);
+    }
+  }
 }
+

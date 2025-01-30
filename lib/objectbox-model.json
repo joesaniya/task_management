@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:5571992548053200495",
-      "lastPropertyId": "6:3496368747080220006",
+      "lastPropertyId": "7:3122219108885561663",
       "name": "Task",
       "properties": [
         {
@@ -37,6 +37,11 @@
         {
           "id": "6:3496368747080220006",
           "name": "endDate",
+          "type": 10
+        },
+        {
+          "id": "7:3122219108885561663",
+          "name": "lastUpdated",
           "type": 10
         }
       ],

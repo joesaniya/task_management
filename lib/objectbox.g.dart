@@ -22,7 +22,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(1, 5571992548053200495),
       name: 'Task',
-      lastPropertyId: const obx_int.IdUid(6, 3496368747080220006),
+      lastPropertyId: const obx_int.IdUid(7, 3122219108885561663),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -53,6 +53,11 @@ final _entities = <obx_int.ModelEntity>[
         obx_int.ModelProperty(
             id: const obx_int.IdUid(6, 3496368747080220006),
             name: 'endDate',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(7, 3122219108885561663),
+            name: 'lastUpdated',
             type: 10,
             flags: 0)
       ],
@@ -128,13 +133,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
           final descriptionOffset = fbb.writeString(object.description);
           final priorityOffset = fbb.writeString(object.priority);
           final statusOffset = fbb.writeString(object.status);
-          fbb.startTable(7);
+          fbb.startTable(8);
           fbb.addInt64(0, object.id);
           fbb.addOffset(1, titleOffset);
           fbb.addOffset(2, descriptionOffset);
           fbb.addOffset(3, priorityOffset);
           fbb.addOffset(4, statusOffset);
           fbb.addInt64(5, object.endDate.millisecondsSinceEpoch);
+          fbb.addInt64(6, object.lastUpdated.millisecondsSinceEpoch);
           fbb.finish(fbb.endTable());
           return object.id;
         },
@@ -154,13 +160,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
               .vTableGet(buffer, rootOffset, 12, '');
           final endDateParam = DateTime.fromMillisecondsSinceEpoch(
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 14, 0));
+          final lastUpdatedParam = DateTime.fromMillisecondsSinceEpoch(
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 16, 0));
           final object = Task(
               id: idParam,
               title: titleParam,
               description: descriptionParam,
               priority: priorityParam,
               status: statusParam,
-              endDate: endDateParam);
+              endDate: endDateParam,
+              lastUpdated: lastUpdatedParam);
 
           return object;
         })
@@ -193,4 +202,8 @@ class Task_ {
   /// See [Task.endDate].
   static final endDate =
       obx.QueryDateProperty<Task>(_entities[0].properties[5]);
+
+  /// See [Task.lastUpdated].
+  static final lastUpdated =
+      obx.QueryDateProperty<Task>(_entities[0].properties[6]);
 }
