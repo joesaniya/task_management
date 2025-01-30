@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:task1/models/task.dart';
 import 'package:task1/provider/task_provider.dart';
-import '../models/task.dart';
+import 'package:task1/sreens/task_tile.dart';
 import 'add_task_screen.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
@@ -12,6 +13,15 @@ class TaskListScreen extends StatelessWidget {
     return Consumer<TaskProvider>(
       builder: (context, taskProvider, child) {
         taskProvider.fetchTasks();
+
+        List<Task> overdueTasks = taskProvider.tasks
+            .where((task) =>
+                task.endDate.isBefore(DateTime.now()) &&
+                task.status != 'Completed')
+            .toList();
+        List<Task> pendingTasks = taskProvider.tasks
+            .where((task) => !overdueTasks.contains(task))
+            .toList();
         double completedTasksPercentage = 0.0;
         if (taskProvider.tasks.isNotEmpty) {
           completedTasksPercentage = taskProvider.tasks
@@ -42,40 +52,29 @@ class TaskListScreen extends StatelessWidget {
                 waveAmplitude: 0,
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: taskProvider.tasks.length,
-                  itemBuilder: (context, index) {
-                    final task = taskProvider.tasks[index];
-                    bool isOverdue = task.endDate.isBefore(DateTime.now()) &&
-                        task.status != 'Completed';
-                    bool isApproachingDeadline = task.endDate
-                            .isBefore(DateTime.now().add(Duration(days: 1))) &&
-                        task.status != 'Completed';
-
-                    return ListTile(
-                      tileColor: isOverdue
-                          ? Colors.red.shade100
-                          : isApproachingDeadline
-                              ? Colors.yellow.shade100
-                              : null,
-                      title: Text(task.title),
-                      subtitle: Text(task.description),
-                      trailing: IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => AddTaskScreen(task: task),
-                            ),
-                          );
-                        },
-                      ),
-                      onLongPress: () {
-                        taskProvider.deleteTask(task.id);
-                      },
-                    );
-                  },
+                child: ListView(
+                  children: [
+                    if (overdueTasks.isNotEmpty) ...[
+                      ListTile(
+                          title: Text('Overdue Tasks',
+                              style: TextStyle(
+                                  color: Colors.red,
+                                  fontWeight: FontWeight.bold))),
+                      ...overdueTasks
+                          .map((task) =>
+                              TaskTile(task: task, taskProvider: taskProvider))
+                          .toList(),
+                    ],
+                    if (pendingTasks.isNotEmpty) ...[
+                      ListTile(
+                          title: Text('Pending Tasks',
+                              style: TextStyle(fontWeight: FontWeight.bold))),
+                      ...pendingTasks
+                          .map((task) =>
+                              TaskTile(task: task, taskProvider: taskProvider))
+                          .toList(),
+                    ],
+                  ],
                 ),
               ),
             ],

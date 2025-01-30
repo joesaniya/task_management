@@ -15,7 +15,7 @@ class AddTaskScreen extends StatefulWidget {
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _priorityController = TextEditingController();
+  String _priority = 'Medium';
   DateTime _endDate = DateTime.now();
 
   @override
@@ -24,36 +24,48 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
     if (widget.task != null) {
       _titleController.text = widget.task!.title;
       _descriptionController.text = widget.task!.description;
-      _priorityController.text = widget.task!.priority;
+      _priority = widget.task!.priority;
       _endDate = widget.task!.endDate;
     }
   }
 
+  void _pickDate() async {
+    DateTime? pickedDate = await showDatePicker(
+      context: context,
+      initialDate: _endDate,
+      firstDate: DateTime.now(),
+      lastDate: DateTime(2100),
+    );
+    if (pickedDate != null) {
+      setState(() {
+        _endDate = pickedDate;
+      });
+    }
+  }
+
   void _saveTask() {
-    final newTask = Task(
+    final task = Task(
+      id: widget.task?.id ?? 0,
       title: _titleController.text,
       description: _descriptionController.text,
-      priority: _priorityController.text,
-      status: widget.task != null ? widget.task!.status : 'Pending',
+      priority: _priority,
+      status: widget.task?.status ?? 'Pending',
       endDate: _endDate,
     );
-
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
     if (widget.task != null) {
-      taskProvider.updateTask(newTask); // Update existing task
+      taskProvider.updateTask(task);
     } else {
-      taskProvider.addTask(newTask); // Add new task
+      taskProvider.addTask(task);
     }
-
-    Navigator.pop(context); // Go back to task list
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.task != null ? 'Edit Task' : 'Add Task'),
-      ),
+      appBar:
+          AppBar(title: Text(widget.task != null ? 'Edit Task' : 'Add Task')),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -66,9 +78,26 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               controller: _descriptionController,
               decoration: InputDecoration(labelText: 'Task Description'),
             ),
-            TextField(
-              controller: _priorityController,
-              decoration: InputDecoration(labelText: 'Priority (High/Medium/Low)'),
+            DropdownButtonFormField<String>(
+              value: _priority,
+              items: ['High', 'Medium', 'Low']
+                  .map((priority) => DropdownMenuItem(
+                        value: priority,
+                        child: Text(priority),
+                      ))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _priority = value!;
+                });
+              },
+              decoration: InputDecoration(labelText: 'Priority'),
+            ),
+            SizedBox(height: 10),
+            TextButton.icon(
+              onPressed: _pickDate,
+              icon: Icon(Icons.calendar_today),
+              label: Text('End Date: ${_endDate.toLocal()}'.split(' ')[0]),
             ),
             ElevatedButton(
               onPressed: _saveTask,
