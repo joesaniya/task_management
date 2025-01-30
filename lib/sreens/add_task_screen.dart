@@ -17,7 +17,7 @@ class AddTaskScreen extends StatefulWidget {
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
-  final _endDateController = TextEditingController(); // Controller for date
+  final _endDateController = TextEditingController();
   String _priority = 'Medium';
   DateTime _endDate = DateTime.now();
 
@@ -29,8 +29,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _descriptionController.text = widget.task!.description;
       _priority = widget.task!.priority;
       _endDate = widget.task!.endDate;
-      _endDateController.text =
-          _endDate.toLocal().toString().split(' ')[0]; // Display initial date
+      _endDateController.text = _endDate.toLocal().toString().split(' ')[0];
     }
   }
 

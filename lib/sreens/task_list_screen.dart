@@ -1,6 +1,9 @@
+import 'dart:async';
 import 'dart:developer';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:task1/models/task.dart';
 import 'package:task1/provider/task_provider.dart';
@@ -9,7 +12,56 @@ import 'add_task_screen.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
 
-class TaskListScreen extends StatelessWidget {
+class TaskListScreen extends StatefulWidget {
+  @override
+  State<TaskListScreen> createState() => _TaskListScreenState();
+}
+
+class _TaskListScreenState extends State<TaskListScreen> {
+  List<ConnectivityResult> _connectionStatus = [ConnectivityResult.none];
+  final Connectivity _connectivity = Connectivity();
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    initConnectivity();
+
+    _connectivitySubscription =
+        _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+  }
+
+  @override
+  void dispose() {
+    _connectivitySubscription.cancel();
+    super.dispose();
+  }
+
+  Future<void> initConnectivity() async {
+    late List<ConnectivityResult> result;
+
+    try {
+      result = await _connectivity.checkConnectivity();
+    } on PlatformException catch (e) {
+      log('Couldn\'t check connectivity status', error: e);
+      return;
+    }
+
+    if (!mounted) {
+      return Future.value(null);
+    }
+
+    return _updateConnectionStatus(result);
+  }
+
+  Future<void> _updateConnectionStatus(List<ConnectivityResult> result) async {
+    setState(() {
+      _connectionStatus = result;
+    });
+
+    log('Connectivity changed: $_connectionStatus');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<TaskProvider>(
@@ -39,7 +91,7 @@ class TaskListScreen extends StatelessWidget {
 
         double totalTasks = taskProvider.tasks.length.toDouble();
         if (totalTasks == 0) {
-          return Container(); 
+          return Container();
         }
 
         double completedTasksPercentage = taskProvider.tasks

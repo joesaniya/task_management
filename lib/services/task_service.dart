@@ -67,9 +67,11 @@ class TaskService {
     log('calling syncTasksWithFirestore');
     final box = store.box<Task>();
     final tasks = box.getAll();
+    log('box tasks:${tasks.length}');
     for (var task in tasks) {
       log('task:$task');
       if (task.id == 0) {
+        log('task1:${task.title}');
         final docRef = await firestore.collection('tasks').add({
           'title': task.title,
           'description': task.description,
@@ -80,6 +82,7 @@ class TaskService {
         });
         task.id = int.parse(docRef.id);
         await box.put(task);
+        log('task11:${task.title}');
       } else {
         final docRef = firestore.collection('tasks').doc(task.id.toString());
         final doc = await docRef.get();
@@ -92,6 +95,7 @@ class TaskService {
             'endDate': task.endDate.toIso8601String(),
             'lastUpdated': task.lastUpdated.toIso8601String(),
           });
+          log('task12:${task.title}');
         } else {
           final data = doc.data()!;
           final task = Task(
@@ -104,6 +108,7 @@ class TaskService {
             lastUpdated: DateTime.parse(data['lastUpdated']),
           );
           await box.put(task);
+          log('task13:${task.title}');
         }
       }
     }

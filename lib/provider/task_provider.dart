@@ -44,5 +44,4 @@ class TaskProvider with ChangeNotifier {
     await taskService.importFromSQLite();
     fetchTasks();
   }
-  
 }
