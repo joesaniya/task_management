@@ -115,33 +115,35 @@ class _TaskListScreenState extends State<TaskListScreen> {
         return Scaffold(
           appBar: AppBar(
             title: Text('Task List'),
-            actions: [
-              IconButton(
-                onPressed: () {
-                  log('Export data Calling');
-                  taskProvider.exportTasks();
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Tasks Exported")));
-                },
-                icon: Icon(Icons.file_upload),
-                tooltip: 'Export Tasks',
-              ),
-              IconButton(
-                onPressed: () async {
-                  log('import data Calling');
-                  await taskProvider.importTasks();
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text("Tasks Imported")));
-                },
-                icon: Icon(Icons.file_download),
-                tooltip: 'Import Tasks',
-              ),
-              IconButton(
-                  onPressed: () {
-                    taskProvider.syncTasks();
-                  },
-                  icon: Icon(Icons.cloud))
-            ],
+            actions: _connectionStatus.first == ConnectivityResult.none
+                ? []
+                : [
+                    IconButton(
+                      onPressed: () {
+                        log('Export data Calling');
+                        taskProvider.exportTasks();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Tasks Exported")));
+                      },
+                      icon: Icon(Icons.file_upload),
+                      tooltip: 'Export Tasks',
+                    ),
+                    IconButton(
+                      onPressed: () async {
+                        log('import data Calling');
+                        await taskProvider.importTasks();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text("Tasks Imported")));
+                      },
+                      icon: Icon(Icons.file_download),
+                      tooltip: 'Import Tasks',
+                    ),
+                    IconButton(
+                        onPressed: () {
+                          taskProvider.syncTasks();
+                        },
+                        icon: Icon(Icons.cloud))
+                  ],
           ),
           body: Column(
             children: [
