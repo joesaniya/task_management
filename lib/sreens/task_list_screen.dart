@@ -4,10 +4,12 @@ import 'dart:developer';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:task1/models/task.dart';
 import 'package:task1/provider/task_provider.dart';
 import 'package:task1/sreens/task_tile.dart';
+import 'package:task1/utils/connectivity_status.dart';
 import 'add_task_screen.dart';
 import 'package:wave/config.dart';
 import 'package:wave/wave.dart';
@@ -147,6 +149,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
           ),
           body: Column(
             children: [
+              _connectionStatus.first == ConnectivityResult.none
+                  ? ConnectivityStatus()
+                  : SizedBox(),
               WaveWidget(
                 config: CustomConfig(
                   gradients: [
