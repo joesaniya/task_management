@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task1/models/task.dart';
@@ -36,13 +38,14 @@ class TaskListScreen extends StatelessWidget {
             .toList();
 
         double totalTasks = taskProvider.tasks.length.toDouble();
-        double completedTasksPercentage = 0.0;
-        if (totalTasks > 0) {
-          completedTasksPercentage = taskProvider.tasks
-                  .where((task) => task.status == 'Completed')
-                  .length /
-              totalTasks;
+        if (totalTasks == 0) {
+          return Container(); 
         }
+
+        double completedTasksPercentage = taskProvider.tasks
+                .where((task) => task.status == 'Completed')
+                .length /
+            totalTasks;
 
         double overdueTasksPercentage = overdueTasks.length / totalTasks * 100;
         double lowPriorityPercentage =
@@ -61,6 +64,26 @@ class TaskListScreen extends StatelessWidget {
           appBar: AppBar(
             title: Text('Task List'),
             actions: [
+              IconButton(
+                onPressed: () {
+                  log('Export data Calling');
+                  taskProvider.exportTasks();
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text("Tasks Exported")));
+                },
+                icon: Icon(Icons.file_upload),
+                tooltip: 'Export Tasks',
+              ),
+              IconButton(
+                onPressed: () async {
+                  log('import data Calling');
+                  await taskProvider.importTasks();
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(SnackBar(content: Text("Tasks Imported")));
+                },
+                icon: Icon(Icons.file_download),
+                tooltip: 'Import Tasks',
+              ),
               IconButton(
                   onPressed: () {
                     taskProvider.syncTasks();
@@ -92,10 +115,12 @@ class TaskListScreen extends StatelessWidget {
                   ],
                   durations: [5000, 10000, 15000, 20000],
                   heightPercentages: [
-                    overdueWaveHeight,
-                    lowPriorityWaveHeight,
-                    mediumPriorityWaveHeight,
-                    highPriorityWaveHeight,
+                    overdueWaveHeight.isNaN ? 0.0 : overdueWaveHeight,
+                    lowPriorityWaveHeight.isNaN ? 0.0 : lowPriorityWaveHeight,
+                    mediumPriorityWaveHeight.isNaN
+                        ? 0.0
+                        : mediumPriorityWaveHeight,
+                    highPriorityWaveHeight.isNaN ? 0.0 : highPriorityWaveHeight,
                   ],
                 ),
                 size: Size(double.infinity, 200),
