@@ -21,16 +21,41 @@ class TaskListScreen extends StatelessWidget {
                 task.endDate.isBefore(DateTime.now()) &&
                 task.status != 'Completed')
             .toList();
-        List<Task> pendingTasks = taskProvider.tasks
-            .where((task) => !overdueTasks.contains(task))
+
+        List<Task> lowPriorityTasks = taskProvider.tasks
+            .where((task) =>
+                task.priority == 'Low' && !overdueTasks.contains(task))
             .toList();
+        List<Task> mediumPriorityTasks = taskProvider.tasks
+            .where((task) =>
+                task.priority == 'Medium' && !overdueTasks.contains(task))
+            .toList();
+        List<Task> highPriorityTasks = taskProvider.tasks
+            .where((task) =>
+                task.priority == 'High' && !overdueTasks.contains(task))
+            .toList();
+
+        double totalTasks = taskProvider.tasks.length.toDouble();
         double completedTasksPercentage = 0.0;
-        if (taskProvider.tasks.isNotEmpty) {
+        if (totalTasks > 0) {
           completedTasksPercentage = taskProvider.tasks
                   .where((task) => task.status == 'Completed')
                   .length /
-              taskProvider.tasks.length;
+              totalTasks;
         }
+
+        double overdueTasksPercentage = overdueTasks.length / totalTasks * 100;
+        double lowPriorityPercentage =
+            lowPriorityTasks.length / totalTasks * 100;
+        double mediumPriorityPercentage =
+            mediumPriorityTasks.length / totalTasks * 100;
+        double highPriorityPercentage =
+            highPriorityTasks.length / totalTasks * 100;
+
+        double overdueWaveHeight = overdueTasksPercentage / 100;
+        double lowPriorityWaveHeight = lowPriorityPercentage / 100;
+        double mediumPriorityWaveHeight = mediumPriorityPercentage / 100;
+        double highPriorityWaveHeight = highPriorityPercentage / 100;
 
         return Scaffold(
           appBar: AppBar(
@@ -48,15 +73,29 @@ class TaskListScreen extends StatelessWidget {
               WaveWidget(
                 config: CustomConfig(
                   gradients: [
-                    [Colors.green, Colors.green.shade900],
-                    [Colors.blue, Colors.blue.shade900],
-                    [Colors.red, Colors.red.shade900],
+                    [
+                      Colors.red,
+                      Colors.red.shade900
+                    ], // Overdue tasks - red wave
+                    [
+                      Colors.green,
+                      Colors.green.shade900
+                    ], // Low priority tasks - green wave
+                    [
+                      Colors.blue,
+                      Colors.blue.shade900
+                    ], // Medium priority tasks - blue wave
+                    [
+                      Colors.orange,
+                      Colors.orange.shade900
+                    ], // High priority tasks - orange wave
                   ],
-                  durations: [5000, 10000, 15000],
+                  durations: [5000, 10000, 15000, 20000],
                   heightPercentages: [
-                    0.1 + completedTasksPercentage * 0.9,
-                    0.2 + completedTasksPercentage * 0.8,
-                    0.3 + completedTasksPercentage * 0.7
+                    overdueWaveHeight,
+                    lowPriorityWaveHeight,
+                    mediumPriorityWaveHeight,
+                    highPriorityWaveHeight,
                   ],
                 ),
                 size: Size(double.infinity, 200),
@@ -67,20 +106,46 @@ class TaskListScreen extends StatelessWidget {
                   children: [
                     if (overdueTasks.isNotEmpty) ...[
                       ListTile(
-                          title: Text('Overdue Tasks',
-                              style: TextStyle(
-                                  color: Colors.red,
-                                  fontWeight: FontWeight.bold))),
+                        title: Text(
+                            'Overdue Tasks (${overdueTasks.length} - ${overdueTasksPercentage.toStringAsFixed(1)}%)',
+                            style: TextStyle(
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold)),
+                      ),
                       ...overdueTasks
                           .map((task) =>
                               TaskTile(task: task, taskProvider: taskProvider))
                           .toList(),
                     ],
-                    if (pendingTasks.isNotEmpty) ...[
+                    if (lowPriorityTasks.isNotEmpty) ...[
                       ListTile(
-                          title: Text('Pending Tasks',
-                              style: TextStyle(fontWeight: FontWeight.bold))),
-                      ...pendingTasks
+                        title: Text(
+                            'Low Priority Tasks (${lowPriorityTasks.length} - ${lowPriorityPercentage.toStringAsFixed(1)}%)',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      ...lowPriorityTasks
+                          .map((task) =>
+                              TaskTile(task: task, taskProvider: taskProvider))
+                          .toList(),
+                    ],
+                    if (mediumPriorityTasks.isNotEmpty) ...[
+                      ListTile(
+                        title: Text(
+                            'Medium Priority Tasks (${mediumPriorityTasks.length} - ${mediumPriorityPercentage.toStringAsFixed(1)}%)',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      ...mediumPriorityTasks
+                          .map((task) =>
+                              TaskTile(task: task, taskProvider: taskProvider))
+                          .toList(),
+                    ],
+                    if (highPriorityTasks.isNotEmpty) ...[
+                      ListTile(
+                        title: Text(
+                            'High Priority Tasks (${highPriorityTasks.length} - ${highPriorityPercentage.toStringAsFixed(1)}%)',
+                            style: TextStyle(fontWeight: FontWeight.bold)),
+                      ),
+                      ...highPriorityTasks
                           .map((task) =>
                               TaskTile(task: task, taskProvider: taskProvider))
                           .toList(),
