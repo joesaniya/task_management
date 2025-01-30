@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
-
+import 'package:file_picker/file_picker.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 import 'package:objectbox/objectbox.dart';
@@ -226,6 +226,63 @@ class TaskService {
     }
   }
 
+  Future<void> exportToSQLiteworked() async {
+    final box = store.box<Task>();
+    final tasks = box.getAll();
+
+    Directory? downloadsDirectory;
+    if (Platform.isAndroid) {
+      downloadsDirectory = Directory('/storage/emulated/0/Download');
+    } else if (Platform.isIOS) {
+      downloadsDirectory = await getDownloadsDirectory();
+    }
+
+    if (downloadsDirectory == null || !await downloadsDirectory.exists()) {
+      print("Downloads folder not found.");
+      return;
+    }
+
+    final dbPath = '${downloadsDirectory.path}/tasks.db';
+
+    print('Database Path: $dbPath');
+
+    final db =
+        await openDatabase(dbPath, version: 1, onCreate: (db, version) async {
+      try {
+        await db.execute('CREATE TABLE IF NOT EXISTS tasks ('
+            'id INTEGER PRIMARY KEY, '
+            'title TEXT, '
+            'description TEXT, '
+            'priority TEXT, '
+            'status TEXT, '
+            'endDate TEXT, '
+            'lastUpdated TEXT)');
+        print('Table created successfully');
+      } catch (e) {
+        print('Error creating table: $e');
+      }
+    });
+
+    for (var task in tasks) {
+      try {
+        await db.insert('tasks', {
+          'id': task.id,
+          'title': task.title,
+          'description': task.description,
+          'priority': task.priority,
+          'status': task.status,
+          'endDate': task.endDate.toIso8601String(),
+          'lastUpdated': task.lastUpdated.toIso8601String(),
+        });
+        print('Task inserted: ${task.title}');
+      } catch (e) {
+        print('Error inserting task: $e');
+      }
+    }
+
+    await db.close();
+  }
+
   Future<void> exportToSQLite() async {
     final box = store.box<Task>();
     final tasks = box.getAll();
@@ -339,13 +396,75 @@ class TaskService {
     }
   }
 
-  Future<void> exportToSQLiteworked() async {
-    final box = store.box<Task>();
-    final tasks = box.getAll();
+  Future<void> importFromSQLite() async {
+    log('importFromSQLite calling');
 
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType
+          .any, /*      type: FileType.custom,
+      allowedExtensions: ['sqlite', 'database', 'db'], */
+    );
+
+    if (result == null || result.files.single.path == null) {
+      print("No database file selected.");
+      return;
+    }
+
+    final dbPath = result.files.single.path!;
+    print("Importing from: $dbPath");
+
+    final db = await openDatabase(
+      dbPath,
+      version: 1,
+      onCreate: (db, version) async {
+        await db.execute('''
+      CREATE TABLE IF NOT EXISTS tasks (
+        id INTEGER PRIMARY KEY, 
+        title TEXT, 
+        description TEXT, 
+        priority TEXT, 
+        status TEXT, 
+        endDate TEXT, 
+        lastUpdated TEXT
+      )
+    ''');
+      },
+    );
+
+    final List<Map<String, dynamic>> tasksData = await db.query('tasks');
+    await db.close();
+
+    if (tasksData.isEmpty) {
+      print("No tasks found in SQLite.");
+      return;
+    }
+
+    final box = store.box<Task>();
+    for (var data in tasksData) {
+      final task = Task(
+        id: data['id'],
+        title: data['title'],
+        description: data['description'],
+        priority: data['priority'],
+        status: data['status'],
+        endDate: DateTime.tryParse(data['endDate']) ?? DateTime.now(),
+        lastUpdated: DateTime.tryParse(data['lastUpdated']) ?? DateTime.now(),
+      );
+      await box.put(task);
+    }
+
+    log("Tasks imported successfully from SQLite.");
+  }
+
+  Future<void> importFromSQLiteworked() async {
     Directory? downloadsDirectory;
+
     if (Platform.isAndroid) {
-      downloadsDirectory = Directory('/storage/emulated/0/Download');
+      if (Platform.version.contains("11")) {
+        downloadsDirectory = await getExternalStorageDirectory();
+      } else {
+        downloadsDirectory = Directory('/storage/emulated/0/Download');
+      }
     } else if (Platform.isIOS) {
       downloadsDirectory = await getDownloadsDirectory();
     }
@@ -355,52 +474,52 @@ class TaskService {
       return;
     }
 
-    final dbPath = '${downloadsDirectory.path}/tasks.db';
+    // Find the most recent exported SQLite database
+    final files = downloadsDirectory.listSync().whereType<File>().toList();
+    files.sort((a, b) =>
+        b.lastModifiedSync().compareTo(a.lastModifiedSync())); // Sort by latest
 
-    print('Database Path: $dbPath');
-
-    final db =
-        await openDatabase(dbPath, version: 1, onCreate: (db, version) async {
-      try {
-        await db.execute('CREATE TABLE IF NOT EXISTS tasks ('
-            'id INTEGER PRIMARY KEY, '
-            'title TEXT, '
-            'description TEXT, '
-            'priority TEXT, '
-            'status TEXT, '
-            'endDate TEXT, '
-            'lastUpdated TEXT)');
-        print('Table created successfully');
-      } catch (e) {
-        print('Error creating table: $e');
-      }
-    });
-
-    for (var task in tasks) {
-      try {
-        await db.insert('tasks', {
-          'id': task.id,
-          'title': task.title,
-          'description': task.description,
-          'priority': task.priority,
-          'status': task.status,
-          'endDate': task.endDate.toIso8601String(),
-          'lastUpdated': task.lastUpdated.toIso8601String(),
-        });
-        print('Task inserted: ${task.title}');
-      } catch (e) {
-        print('Error inserting task: $e');
+    File? latestDbFile;
+    for (var file in files) {
+      if (file.path.endsWith('.db')) {
+        latestDbFile = file;
+        break;
       }
     }
 
-    await db.close();
-  }
+    if (latestDbFile == null) {
+      print("No exported database found in Downloads.");
+      return;
+    }
 
-  Future<void> importFromSQLite() async {
-    final databasePath = await getDatabasesPath();
-    final db = await openDatabase('$databasePath/tasks.db');
+    final dbPath = latestDbFile.path;
+    log("Importing from: $dbPath");
+
+    final db = await openDatabase(
+      dbPath,
+      version: 1,
+      onCreate: (db, version) async {
+        await db.execute('''
+        CREATE TABLE IF NOT EXISTS tasks (
+          id INTEGER PRIMARY KEY, 
+          title TEXT, 
+          description TEXT, 
+          priority TEXT, 
+          status TEXT, 
+          endDate TEXT, 
+          lastUpdated TEXT
+        )
+      ''');
+      },
+    );
+
     final List<Map<String, dynamic>> tasksData = await db.query('tasks');
     await db.close();
+
+    if (tasksData.isEmpty) {
+      print("No tasks found in SQLite.");
+      return;
+    }
 
     final box = store.box<Task>();
     for (var data in tasksData) {
@@ -415,5 +534,7 @@ class TaskService {
       );
       await box.put(task);
     }
+
+    log("Tasks imported successfully from SQLite.");
   }
 }
