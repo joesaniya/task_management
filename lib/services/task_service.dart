@@ -17,10 +17,38 @@ class TaskService {
     await box.put(task);
   }
 
+  Future<void> updateTaskk(Task task) async {
+    final box = store.box<Task>();
+    task.lastUpdated = DateTime.now();
+    await box.put(task);
+  }
+
   Future<void> updateTask(Task task) async {
     final box = store.box<Task>();
     task.lastUpdated = DateTime.now();
     await box.put(task);
+    final docRef = firestore.collection('tasks').doc(task.id.toString());
+    final doc = await docRef.get();
+    if (doc.exists) {
+      await docRef.update({
+        'title': task.title,
+        'description': task.description,
+        'priority': task.priority,
+        'status': task.status,
+        'endDate': task.endDate.toIso8601String(),
+        'lastUpdated': task.lastUpdated.toIso8601String(),
+      });
+    } else {
+      // If the task doesn't exist in Firestore, create it
+      await docRef.set({
+        'title': task.title,
+        'description': task.description,
+        'priority': task.priority,
+        'status': task.status,
+        'endDate': task.endDate.toIso8601String(),
+        'lastUpdated': task.lastUpdated.toIso8601String(),
+      });
+    }
   }
 
   Future<void> deleteTask(int taskId) async {
