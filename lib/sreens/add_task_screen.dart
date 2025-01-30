@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:task1/provider/task_provider.dart';
@@ -15,6 +17,7 @@ class AddTaskScreen extends StatefulWidget {
 class _AddTaskScreenState extends State<AddTaskScreen> {
   final _titleController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final _endDateController = TextEditingController(); // Controller for date
   String _priority = 'Medium';
   DateTime _endDate = DateTime.now();
 
@@ -26,6 +29,8 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _descriptionController.text = widget.task!.description;
       _priority = widget.task!.priority;
       _endDate = widget.task!.endDate;
+      _endDateController.text =
+          _endDate.toLocal().toString().split(' ')[0]; // Display initial date
     }
   }
 
@@ -36,11 +41,13 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       firstDate: DateTime.now(),
       lastDate: DateTime(2100),
     );
-    if (pickedDate != null) {
+    if (pickedDate != null && pickedDate != _endDate) {
       setState(() {
         _endDate = pickedDate;
+        _endDateController.text = _endDate.toLocal().toString().split(' ')[0];
       });
     }
+    log('Date:${_endDateController.text}');
   }
 
   void _saveTask() {
@@ -94,10 +101,14 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               decoration: InputDecoration(labelText: 'Priority'),
             ),
             SizedBox(height: 10),
-            TextButton.icon(
-              onPressed: _pickDate,
-              icon: Icon(Icons.calendar_today),
-              label: Text('End Date: ${_endDate.toLocal()}'.split(' ')[0]),
+            TextFormField(
+              controller: _endDateController,
+              readOnly: true,
+              onTap: _pickDate,
+              decoration: InputDecoration(
+                labelText: 'End Date',
+                suffixIcon: Icon(Icons.calendar_today),
+              ),
             ),
             ElevatedButton(
               onPressed: _saveTask,
