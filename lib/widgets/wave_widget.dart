@@ -50,10 +50,10 @@ class WaveContainer extends StatelessWidget {
               ],
             ),
             size: Size(double.infinity, double.infinity),
-            waveAmplitude: 15,
+            waveAmplitude: 1,
           ),
           Positioned(
-            bottom: 10,
+            bottom: MediaQuery.of(context).size.height * 0.01,
             child: Text('$title - ${percentage.toStringAsFixed(2)}%',
                 style: GoogleFonts.metrophobic(
                   textStyle: TextStyle(

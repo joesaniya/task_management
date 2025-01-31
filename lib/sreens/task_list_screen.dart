@@ -12,7 +12,6 @@ import 'package:task1/utils/connectivity_status.dart';
 import 'package:task1/widgets/wave_widget.dart';
 import 'package:task1/widgets/welcome_text_widget.dart';
 
-
 class TaskListScreen extends StatefulWidget {
   @override
   State<TaskListScreen> createState() => _TaskListScreenState();
@@ -22,6 +21,11 @@ class _TaskListScreenState extends State<TaskListScreen> {
   List<ConnectivityResult> _connectionStatus = [ConnectivityResult.none];
   final Connectivity _connectivity = Connectivity();
   late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
+  TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
+  String _selectedPriority = 'All';
+  String _selectedStatus = 'All';
+  Timer? _debounce;
 
   @override
   void initState() {
@@ -30,11 +34,24 @@ class _TaskListScreenState extends State<TaskListScreen> {
 
     _connectivitySubscription =
         _connectivity.onConnectivityChanged.listen(_updateConnectionStatus);
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  void _onSearchChanged() {
+    if (_debounce?.isActive ?? false) _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () {
+      setState(() {
+        _searchQuery = _searchController.text;
+      });
+    });
   }
 
   @override
   void dispose() {
     _connectivitySubscription.cancel();
+    _searchController.removeListener(_onSearchChanged);
+    _debounce?.cancel();
+
     super.dispose();
   }
 
@@ -69,37 +86,51 @@ class _TaskListScreenState extends State<TaskListScreen> {
       builder: (context, taskProvider, child) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           taskProvider.fetchTasks();
+          _connectionStatus.first == ConnectivityResult.none
+              ? taskProvider.syncTasks()
+              : null;
         });
 
-        List<Task> overdueTasks = taskProvider.tasks
+        List<Task> filteredTasks = taskProvider.tasks.where((task) {
+          bool matchesSearch = task.title.contains(_searchQuery) ||
+              task.description.contains(_searchQuery);
+
+          bool matchesPriority = (_selectedPriority == 'All' ||
+              task.priority == _selectedPriority);
+
+          bool matchesStatus =
+              (_selectedStatus == 'All' || task.status == _selectedStatus);
+
+          return matchesSearch && matchesPriority && matchesStatus;
+        }).toList();
+
+        List<Task> overdueTasks = filteredTasks
             .where((task) =>
                 task.endDate.isBefore(DateTime.now()) &&
                 task.status != 'Completed')
             .toList();
 
-        List<Task> lowPriorityTasks = taskProvider.tasks
+        List<Task> lowPriorityTasks = filteredTasks
             .where((task) =>
                 task.priority == 'Low' && !overdueTasks.contains(task))
             .toList();
-        List<Task> mediumPriorityTasks = taskProvider.tasks
+        List<Task> mediumPriorityTasks = filteredTasks
             .where((task) =>
                 task.priority == 'Medium' && !overdueTasks.contains(task))
             .toList();
-        List<Task> highPriorityTasks = taskProvider.tasks
+        List<Task> highPriorityTasks = filteredTasks
             .where((task) =>
                 task.priority == 'High' && !overdueTasks.contains(task))
             .toList();
 
-        double totalTasks = taskProvider.tasks.length.toDouble();
-        // log('Total Tasks:$totalTasks');
+        double totalTasks = filteredTasks.length.toDouble();
         if (totalTasks == 0) {
           return Container();
         }
 
-        double completedTasksPercentage = taskProvider.tasks
-                .where((task) => task.status == 'Completed')
-                .length /
-            totalTasks;
+        double completedTasksPercentage =
+            filteredTasks.where((task) => task.status == 'Completed').length /
+                totalTasks;
 
         double overdueTasksPercentage = overdueTasks.length / totalTasks * 100;
         double lowPriorityPercentage =
@@ -164,7 +195,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                         color: Colors.deepPurple),
                                     tooltip: 'Import Tasks',
                                   ),
-                                  _connectionStatus.first ==
+                                  /*  _connectionStatus.first ==
                                           ConnectivityResult.none
                                       ? SizedBox()
                                       : IconButton(
@@ -172,7 +203,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                             taskProvider.syncTasks();
                                           },
                                           icon: Icon(Icons.cloud,
-                                              color: Colors.deepPurple))
+                                              color: Colors.deepPurple))*/
                                 ],
                               ),
                             )
@@ -184,8 +215,49 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   _connectionStatus.first == ConnectivityResult.none
                       ? ConnectivityStatus()
                       : SizedBox(),
-                  SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.05,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        labelText: 'Search Tasks',
+                        border: OutlineInputBorder(),
+                        suffixIcon: Icon(Icons.search),
+                      ),
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      DropdownButton<String>(
+                        value: _selectedPriority,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedPriority = value!;
+                          });
+                        },
+                        items: ['All', 'Low', 'Medium', 'High']
+                            .map((e) => DropdownMenuItem(
+                                  child: Text(e),
+                                  value: e,
+                                ))
+                            .toList(),
+                      ),
+                      DropdownButton<String>(
+                        value: _selectedStatus,
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedStatus = value!;
+                          });
+                        },
+                        items: ['All', 'Pending', 'Completed']
+                            .map((e) => DropdownMenuItem(
+                                  child: Text(e),
+                                  value: e,
+                                ))
+                            .toList(),
+                      ),
+                    ],
                   ),
                   WelcomeTextWidget(),
                   GridView.count(
@@ -223,6 +295,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         percentage: highPriorityPercentage,
                       ),
                     ],
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   Column(
                     children: [
