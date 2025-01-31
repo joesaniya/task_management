@@ -63,6 +63,76 @@ class TaskService {
     log('Calling syncTasksWithFirestore');
     final box = store.box<Task>();
     final tasks = box.getAll();
+
+    for (var task in tasks) {
+      if (task.id == null || task.id == 0) {
+        final docRef = await firestore.collection('tasks').add({
+          'title': task.title,
+          'description': task.description,
+          'priority': task.priority,
+          'status': task.status,
+          'endDate': task.endDate?.toIso8601String(),
+          'lastUpdated': task.lastUpdated?.toIso8601String(),
+        });
+
+        task.id = int.parse(docRef.id);
+        await box.put(task);
+        log('New task synced: ${task.title}');
+      } else {
+        final docRef = firestore.collection('tasks').doc(task.id.toString());
+        final doc = await docRef.get();
+
+        if (doc.exists) {
+          final data = doc.data()!;
+          final firestoreTask = Task(
+            id: int.parse(doc.id),
+            title: data['title'],
+            description: data['description'],
+            priority: data['priority'],
+            status: data['status'],
+            endDate: data['endDate'] != null
+                ? DateTime.parse(data['endDate'])
+                : DateTime.now(),
+            lastUpdated: data['lastUpdated'] != null
+                ? DateTime.parse(data['lastUpdated'])
+                : DateTime.now(),
+          );
+
+          if (firestoreTask.lastUpdated == null ||
+              (task.lastUpdated != null &&
+                  task.lastUpdated!.isAfter(firestoreTask.lastUpdated!))) {
+            await docRef.set({
+              'title': task.title,
+              'description': task.description,
+              'priority': task.priority,
+              'status': task.status,
+              'endDate': task.endDate?.toIso8601String(),
+              'lastUpdated': task.lastUpdated?.toIso8601String(),
+            });
+            log('Firestore task updated: ${task.title}');
+          } else {
+            await box.put(firestoreTask);
+            log('Local task updated from Firestore: ${firestoreTask.title}');
+          }
+        } else {
+          await docRef.set({
+            'title': task.title,
+            'description': task.description,
+            'priority': task.priority,
+            'status': task.status,
+            'endDate': task.endDate?.toIso8601String(),
+            'lastUpdated': task.lastUpdated?.toIso8601String(),
+          });
+          log('Task created in Firestore: ${task.title}');
+        }
+      }
+    }
+  }
+
+  Future<void> syncTasksWithFirestore1() async {
+    log('Calling syncTasksWithFirestore');
+    final box = store.box<Task>();
+    final tasks = box.getAll();
     // log('Tasks in ObjectBox: ${tasks.length}');
 
     for (var task in tasks) {
@@ -139,7 +209,7 @@ class TaskService {
     String formattedDate = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
     final dbPath = '${downloadsDirectory.path}/tasks_$formattedDate.db';
 
-    // log('Database Path: $dbPath');
+    log('Database Path: $dbPath');
 
     final db = await openDatabase(
       dbPath,

@@ -22,10 +22,22 @@ class TaskProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  void addTask(Task task) {
+  void addTaskk(Task task) {
     taskService.addTask(task);
     fetchTasks();
     syncTasks();
+  }
+
+  void addTask(Task task) async {
+    task.lastUpdated = DateTime.now();
+    taskService.addTask(task);
+
+    if (connectionStatus.contains(ConnectivityResult.mobile) ||
+        connectionStatus.contains(ConnectivityResult.wifi)) {
+      syncTasks();
+    }
+
+    fetchTasks();
   }
 
   void updateTask(Task task) {
@@ -39,7 +51,14 @@ class TaskProvider with ChangeNotifier {
     fetchTasks();
   }
 
-  void syncTasks() async {
+  Future<void> syncTasks() async {
+    if (connectionStatus.contains(ConnectivityResult.mobile) ||
+        connectionStatus.contains(ConnectivityResult.wifi)) {
+      await taskService.syncTasksWithFirestore();
+    }
+  }
+
+  void syncTaskss() async {
     await taskService.syncTasksWithFirestore();
   }
 

@@ -118,15 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                         color: Colors.deepPurple),
                                     tooltip: 'Import Tasks',
                                   ),
-                                  /*  _connectionStatus.first ==
-                                          ConnectivityResult.none
-                                      ? SizedBox()
-                                      : IconButton(
-                                          onPressed: () {
-                                            taskProvider.syncTasks();
-                                          },
-                                          icon: Icon(Icons.cloud,
-                                              color: Colors.deepPurple))*/
+                                 
                                 ],
                               ),
                             )
@@ -187,25 +179,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  /* Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 10),
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        labelStyle: GoogleFonts.metrophobic(
-                          textStyle: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.normal,
-                            letterSpacing: .5,
-                          ),
-                        ),
-                        labelText: 'Search Tasks',
-                        border: OutlineInputBorder(),
-                        suffixIcon: Icon(Icons.search),
-                      ),
-                    ),
-                  ),
-                 */
+                
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
