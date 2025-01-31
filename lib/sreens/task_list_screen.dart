@@ -298,7 +298,16 @@ class _TaskListScreenState extends State<TaskListScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       DropdownButton<String>(
+                        iconEnabledColor: Colors.deepPurple,
                         value: _selectedPriority,
+                        style: GoogleFonts.metrophobic(
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.deepPurple,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: .5,
+                          ),
+                        ),
                         onChanged: (value) {
                           setState(() {
                             _selectedPriority = value!;
@@ -312,7 +321,16 @@ class _TaskListScreenState extends State<TaskListScreen> {
                             .toList(),
                       ),
                       DropdownButton<String>(
+                        iconEnabledColor: Colors.deepPurple,
                         value: _selectedStatus,
+                        style: GoogleFonts.metrophobic(
+                          textStyle: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.deepPurple,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: .5,
+                          ),
+                        ),
                         onChanged: (value) {
                           setState(() {
                             _selectedStatus = value!;
@@ -326,6 +344,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                             .toList(),
                       ),
                     ],
+                  ),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.02,
                   ),
                   WelcomeTextWidget(),
                   GridView.count(
