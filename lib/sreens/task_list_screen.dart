@@ -10,6 +10,7 @@ import 'package:task1/models/task.dart';
 import 'package:task1/provider/task_provider.dart';
 import 'package:task1/sreens/task_tile.dart';
 import 'package:task1/utils/connectivity_status.dart';
+import 'package:task1/widgets/custom_snackbar.dart';
 import 'package:task1/widgets/wave_widget.dart';
 import 'package:task1/widgets/welcome_text_widget.dart';
 
@@ -174,9 +175,13 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                     onPressed: () {
                                       log('Export data Calling');
                                       taskProvider.exportTasks();
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              content: Text("Tasks Exported")));
+                                      CustomSnackbar.show(
+                                        context,
+                                        message: "Tasks Exported!",
+                                        backgroundColor: Colors.deepPurple,
+                                        textColor: Colors.white,
+                                        icon: Icons.check_circle,
+                                      );
                                     },
                                     icon: Icon(
                                       Icons.file_upload,
@@ -188,9 +193,14 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                     onPressed: () async {
                                       log('import data Calling');
                                       await taskProvider.importTasks();
-                                      ScaffoldMessenger.of(context)
-                                          .showSnackBar(SnackBar(
-                                              content: Text("Tasks Imported")));
+
+                                      CustomSnackbar.show(
+                                        context,
+                                        message: "Tasks Imported!",
+                                        backgroundColor: Colors.deepPurple,
+                                        textColor: Colors.white,
+                                        icon: Icons.check_circle,
+                                      );
                                     },
                                     icon: Icon(Icons.file_download,
                                         color: Colors.deepPurple),
