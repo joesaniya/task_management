@@ -14,14 +14,13 @@ class TaskService {
 
   TaskService(this.store, this.firestore);
 
-  // Add Task to ObjectBox
   Future<void> addTask(Task task) async {
     final box = store.box<Task>();
     task.lastUpdated = DateTime.now();
     await box.put(task);
   }
 
-  // Update Task in ObjectBox and Firestore
+
   Future<void> updateTask(Task task) async {
     final box = store.box<Task>();
     task.lastUpdated = DateTime.now();
@@ -51,19 +50,18 @@ class TaskService {
     }
   }
 
-  // Delete Task from ObjectBox
+ 
   Future<void> deleteTask(int taskId) async {
     final box = store.box<Task>();
     await box.remove(taskId);
   }
 
-  // Get all Tasks from ObjectBox
+ 
   List<Task> getTasks() {
     final box = store.box<Task>();
     return box.getAll();
   }
 
-  // Sync Tasks with Firestore
   Future<void> syncTasksWithFirestore() async {
     log('Calling syncTasksWithFirestore');
     final box = store.box<Task>();
@@ -73,7 +71,6 @@ class TaskService {
     for (var task in tasks) {
       log('Syncing task: ${task.title}');
       if (task.id == 0) {
-        // New task - create in Firestore
         final docRef = await firestore.collection('tasks').add({
           'title': task.title,
           'description': task.description,
@@ -86,7 +83,7 @@ class TaskService {
         await box.put(task);
         log('New task synced: ${task.title}');
       } else {
-        // Existing task - update in Firestore
+      
         final docRef = firestore.collection('tasks').doc(task.id.toString());
         final doc = await docRef.get();
 
@@ -118,7 +115,7 @@ class TaskService {
     }
   }
 
-  // Export Tasks to SQLite
+
   Future<void> exportToSQLite() async {
     final box = store.box<Task>();
     final tasks = box.getAll();
@@ -215,7 +212,7 @@ class TaskService {
     log('Tasks export to SQLite complete. Database saved at $dbPath');
   }
 
-  // Import Tasks from SQLite
+ 
   Future<void> importFromSQLite() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.any,
