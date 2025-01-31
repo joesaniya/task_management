@@ -24,7 +24,7 @@ class TaskProvider with ChangeNotifier {
   void updateTask(Task task) {
     taskService.updateTask(task);
     fetchTasks();
-    // syncTasks();
+    syncTasks();
   }
 
   void deleteTask(int taskId) {
@@ -43,5 +43,15 @@ class TaskProvider with ChangeNotifier {
   Future<void> importTasks() async {
     await taskService.importFromSQLite();
     fetchTasks();
+  }
+
+  // Update the task status
+  void updateTaskStatus(int taskId, String newStatus) {
+    Task task = _tasks.firstWhere((task) => task.id == taskId);
+    task.status = newStatus; // Update status
+    task.lastUpdated = DateTime.now(); // Update last modified date
+    taskService.updateTask(task); // Update in the service (ObjectBox)
+    syncTasks(); // Sync changes with Firestore
+    notifyListeners(); // Notify listeners to update UI
   }
 }

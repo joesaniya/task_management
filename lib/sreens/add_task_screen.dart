@@ -19,6 +19,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
   final _descriptionController = TextEditingController();
   final _endDateController = TextEditingController();
   String _priority = 'Medium';
+  String _status = 'Pending'; // Add status field
   DateTime _endDate = DateTime.now();
 
   @override
@@ -28,6 +29,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
       _titleController.text = widget.task!.title;
       _descriptionController.text = widget.task!.description;
       _priority = widget.task!.priority;
+      _status = widget.task!.status; // Set status from existing task
       _endDate = widget.task!.endDate;
       _endDateController.text = _endDate.toLocal().toString().split(' ')[0];
     }
@@ -55,7 +57,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         title: _titleController.text,
         description: _descriptionController.text,
         priority: _priority,
-        status: widget.task?.status ?? 'Pending',
+        status: _status, // Save the selected status
         endDate: _endDate,
         lastUpdated: DateTime.now());
     final taskProvider = Provider.of<TaskProvider>(context, listen: false);
@@ -98,6 +100,21 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                 });
               },
               decoration: InputDecoration(labelText: 'Priority'),
+            ),
+            DropdownButtonFormField<String>(
+              value: _status,
+              items: ['Pending', 'Completed']
+                  .map((status) => DropdownMenuItem(
+                        value: status,
+                        child: Text(status),
+                      ))
+                  .toList(),
+              onChanged: (value) {
+                setState(() {
+                  _status = value!;
+                });
+              },
+              decoration: InputDecoration(labelText: 'Status'),
             ),
             SizedBox(height: 10),
             TextFormField(
