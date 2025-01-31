@@ -2,11 +2,9 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:task1/widgets/custom_dropdown-widget.dart';
 import 'package:task1/widgets/custom_input_field.dart';
-import 'package:task1/widgets/custom_textfield.dart';
 import 'package:task1/widgets/text_widget.dart';
 import '../provider/task_provider.dart';
 import '../models/task.dart';

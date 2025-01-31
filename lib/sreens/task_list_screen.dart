@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:task1/models/task.dart';
 import 'package:task1/provider/task_provider.dart';
@@ -215,17 +216,74 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   _connectionStatus.first == ConnectivityResult.none
                       ? ConnectivityStatus()
                       : SizedBox(),
-                  Padding(
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.2),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                          offset: Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    padding: EdgeInsets.symmetric(horizontal: 16),
+                    height: 50,
+                    width: MediaQuery.of(context).size.width,
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            controller: _searchController,
+                            decoration: InputDecoration(
+                              labelStyle: GoogleFonts.metrophobic(
+                                textStyle: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.normal,
+                                  letterSpacing: .5,
+                                ),
+                              ),
+                              // hintText: "search",
+                              labelText: 'Search Tasks',
+                              border: InputBorder.none,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.deepPurple,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          padding: EdgeInsets.all(10),
+                          child: Icon(
+                            Iconsax.search_normal_1,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  /* Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10),
                     child: TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
+                        labelStyle: GoogleFonts.metrophobic(
+                          textStyle: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.normal,
+                            letterSpacing: .5,
+                          ),
+                        ),
                         labelText: 'Search Tasks',
                         border: OutlineInputBorder(),
                         suffixIcon: Icon(Icons.search),
                       ),
                     ),
                   ),
+                 */
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
