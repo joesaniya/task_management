@@ -5,6 +5,7 @@ import 'package:task1/models/task.dart';
 import 'package:task1/provider/task_provider.dart';
 import 'package:task1/sreens/add_task_screen.dart';
 import 'package:iconsax/iconsax.dart';
+import 'package:task1/widgets/text_widget.dart';
 
 class TaskTile extends StatelessWidget {
   final Task task;
@@ -36,15 +37,10 @@ class TaskTile extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                task.title,
-                style: GoogleFonts.metrophobic(
-                  textStyle: TextStyle(
-                      color: Colors.black,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: .5),
-                ),
+              TextWidget(
+                text: task.title,
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
               ),
               Container(
                 child: Row(
@@ -72,46 +68,10 @@ class TaskTile extends StatelessWidget {
               )
             ],
           ),
-          Text(
-            task.title,
-            style: GoogleFonts.metrophobic(
-              textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 15,
-                  fontWeight: FontWeight.normal,
-                  letterSpacing: .5),
-            ),
-          ),
-          Text(
-            'Description: ${task.description}',
-            style: GoogleFonts.metrophobic(
-              textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 15,
-                  fontWeight: FontWeight.normal,
-                  letterSpacing: .5),
-            ),
-          ),
-          Text(
-            'Priority: ${task.priority}',
-            style: GoogleFonts.metrophobic(
-              textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 15,
-                  fontWeight: FontWeight.normal,
-                  letterSpacing: .5),
-            ),
-          ),
-          Text(
-            'Date: ${formattedDate}',
-            style: GoogleFonts.metrophobic(
-              textStyle: TextStyle(
-                  color: Colors.black,
-                  fontSize: 15,
-                  fontWeight: FontWeight.normal,
-                  letterSpacing: .5),
-            ),
-          )
+          TextWidget(text: 'Description: ${task.description}'),
+          TextWidget(text: 'Priority: ${task.priority}'),
+          TextWidget(text: 'Status: ${task.status}'),
+          TextWidget(text: 'Date: ${formattedDate}'),
         ],
       ),
     );
