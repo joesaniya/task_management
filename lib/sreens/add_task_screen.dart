@@ -2,6 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:task1/widgets/custom_dropdown-widget.dart';
 import 'package:task1/widgets/custom_input_field.dart';
@@ -65,6 +66,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
 
   void _saveTask() {
     if (_formKey.currentState!.validate()) {
+      log('Date:$_endDate');
       final task = Task(
         id: widget.task?.id ?? 0,
         title: _titleController.text,
@@ -148,6 +150,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                     label: 'Task Description',
                     hintText: 'Enter your task description',
                     controller: _descriptionController,
+                    maxLines: 4,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a task description';
@@ -188,19 +191,22 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       },
                     ),
                   ),
-                  CustomInputField(
+                  /* CustomInputField(
                     label: 'Date',
                     hintText: 'Pick the date',
                     controller: _endDateController,
                     isDatePicker: true,
                     onDateSelected: (date) {
-                      log('date picker');
+                      log('Date selected: $date');
                       _endDateController.text = date;
                     },
                     backgroundColor:
                         Theme.of(context).inputDecorationTheme.fillColor,
+                  ),*/
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.01,
                   ),
-                  /*   AnimatedOpacity(
+                  AnimatedOpacity(
                     opacity: isAnimated ? 1.0 : 0.0,
                     duration: Duration(seconds: 1),
                     child: TextFormField(
@@ -227,7 +233,6 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
                       ),
                     ),
                   ),
-               */
                   SizedBox(
                     height: MediaQuery.of(context).size.height * 0.03,
                   ),

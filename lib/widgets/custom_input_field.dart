@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -53,7 +55,29 @@ class _CustomInputFieldState extends State<CustomInputField> {
 
     if (selectedDate != null) {
       final String formattedDate = "${selectedDate.toLocal()}".split(' ')[0];
+      // Log the selected date for debugging
+      log('Formatted Date: $formattedDate');
+      // Call the callback if it's not null
+      if (widget.onDateSelected != null) {
+        widget.onDateSelected!(formattedDate);
+      }
+    }
+  }
+
+  Future<void> _selectDate1(BuildContext context) async {
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: DateTime.now(),
+      firstDate: DateTime(1900),
+      lastDate: DateTime(2100),
+    );
+
+    if (selectedDate != null) {
+      final String formattedDate = "${selectedDate.toLocal()}".split(' ')[0];
       widget.onDateSelected?.call(formattedDate);
+      log('format:$formattedDate');
+      log('eechk:${widget.onDateSelected?.call(formattedDate)}');
+      setState(() {});
     }
   }
 
@@ -87,6 +111,7 @@ class _CustomInputFieldState extends State<CustomInputField> {
               keyboardType: widget.inputType,
               validator: widget.validator,
               maxLines: widget.maxLines,
+              readOnly: widget.isDatePicker ?? true,
               decoration: InputDecoration(
                 errorStyle: GoogleFonts.metrophobic(
                   textStyle: TextStyle(
