@@ -46,8 +46,13 @@ class TaskProvider with ChangeNotifier {
     syncTasks();
   }
 
-  void deleteTask(int taskId) {
+  void deleteTask1(int taskId) {
     taskService.deleteTask(taskId);
+    fetchTasks();
+  }
+
+  void deleteTask(int taskId) {
+    taskService.deleteTaskk(taskId);
     fetchTasks();
   }
 

@@ -332,4 +332,16 @@ class TaskService {
 
     // log("Tasks imported successfully from SQLite.");
   }
+
+  Future<void> deleteTaskk(int taskId) async {
+
+  final box = store.box<Task>();
+  await box.remove(taskId);
+
+ 
+  final docRef = firestore.collection('tasks').doc(taskId.toString());
+  await docRef.delete();
+  log('Task with id $taskId deleted from Firestore and ObjectBox');
+}
+
 }

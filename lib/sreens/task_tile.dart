@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:task1/models/task.dart';
@@ -59,6 +61,7 @@ class TaskTile extends StatelessWidget {
                     ),
                     InkWell(
                         onTap: () {
+                          log('remove clicked');
                           taskProvider.deleteTask(task.id);
                         },
                         child: Icon(Icons.delete))
