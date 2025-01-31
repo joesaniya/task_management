@@ -20,7 +20,6 @@ class TaskService {
     await box.put(task);
   }
 
-
   Future<void> updateTask(Task task) async {
     final box = store.box<Task>();
     task.lastUpdated = DateTime.now();
@@ -50,13 +49,11 @@ class TaskService {
     }
   }
 
- 
   Future<void> deleteTask(int taskId) async {
     final box = store.box<Task>();
     await box.remove(taskId);
   }
 
- 
   List<Task> getTasks() {
     final box = store.box<Task>();
     return box.getAll();
@@ -66,10 +63,10 @@ class TaskService {
     log('Calling syncTasksWithFirestore');
     final box = store.box<Task>();
     final tasks = box.getAll();
-    log('Tasks in ObjectBox: ${tasks.length}');
+    // log('Tasks in ObjectBox: ${tasks.length}');
 
     for (var task in tasks) {
-      log('Syncing task: ${task.title}');
+      // log('Syncing task: ${task.title}');
       if (task.id == 0) {
         final docRef = await firestore.collection('tasks').add({
           'title': task.title,
@@ -81,9 +78,8 @@ class TaskService {
         });
         task.id = int.parse(docRef.id);
         await box.put(task);
-        log('New task synced: ${task.title}');
+        // log('New task synced: ${task.title}');
       } else {
-      
         final docRef = firestore.collection('tasks').doc(task.id.toString());
         final doc = await docRef.get();
 
@@ -99,7 +95,7 @@ class TaskService {
             lastUpdated: DateTime.parse(data['lastUpdated']),
           );
           await box.put(firestoreTask);
-          log('Existing task synced: ${firestoreTask.title}');
+          // log('Existing task synced: ${firestoreTask.title}');
         } else {
           await docRef.set({
             'title': task.title,
@@ -109,12 +105,11 @@ class TaskService {
             'endDate': task.endDate?.toIso8601String(),
             'lastUpdated': task.lastUpdated?.toIso8601String(),
           });
-          log('Task created in Firestore: ${task.title}');
+          // log('Task created in Firestore: ${task.title}');
         }
       }
     }
   }
-
 
   Future<void> exportToSQLite() async {
     final box = store.box<Task>();
@@ -144,7 +139,7 @@ class TaskService {
     String formattedDate = DateFormat('yyyyMMdd_HHmmss').format(DateTime.now());
     final dbPath = '${downloadsDirectory.path}/tasks_$formattedDate.db';
 
-    log('Database Path: $dbPath');
+    // log('Database Path: $dbPath');
 
     final db = await openDatabase(
       dbPath,
@@ -159,9 +154,9 @@ class TaskService {
               'status TEXT, '
               'endDate TEXT, '
               'lastUpdated TEXT)');
-          log('Table created successfully.');
+          // log('Table created successfully.');
         } catch (e) {
-          log('Error creating table: $e');
+          // log('Error creating table: $e');
         }
       },
     );
@@ -185,7 +180,7 @@ class TaskService {
               'endDate': task.endDate?.toIso8601String(),
               'lastUpdated': task.lastUpdated?.toIso8601String(),
             });
-            log('Task inserted: ${task.title}');
+            // log('Task inserted: ${task.title}');
           } else {
             await txn.update(
               'tasks',
@@ -200,7 +195,7 @@ class TaskService {
               where: 'id = ?',
               whereArgs: [task.id],
             );
-            log('Task updated: ${task.title}');
+            // log('Task updated: ${task.title}');
           }
         } catch (e) {
           print('Error processing task: $e');
@@ -209,10 +204,9 @@ class TaskService {
     });
 
     await db.close();
-    log('Tasks export to SQLite complete. Database saved at $dbPath');
+    // log('Tasks export to SQLite complete. Database saved at $dbPath');
   }
 
- 
   Future<void> importFromSQLite() async {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.any,
@@ -266,6 +260,6 @@ class TaskService {
       await box.put(task);
     }
 
-    log("Tasks imported successfully from SQLite.");
+    // log("Tasks imported successfully from SQLite.");
   }
 }
