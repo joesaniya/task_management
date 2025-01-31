@@ -95,7 +95,8 @@ class TaskProvider with ChangeNotifier {
   void onSearchChanged() {
     if (debounce?.isActive ?? false) debounce?.cancel();
     debounce = Timer(const Duration(milliseconds: 500), () {
-      searchQuery = searchController.text;
+      searchQuery = searchController.text.trim().toLowerCase();
+      Calculation();
     });
     notifyListeners();
   }
@@ -118,6 +119,7 @@ class TaskProvider with ChangeNotifier {
   List<Task> lowPriorityTasks = [];
   List<Task> mediumPriorityTasks = [];
   List<Task> highPriorityTasks = [];
+
   void Calculation() {
     filteredTasks = tasks.where((task) {
       // matchesSearch = task.title.contains(searchQuery);

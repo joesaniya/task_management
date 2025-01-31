@@ -38,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     controller.connectivitySubscription.cancel();
+    controller.searchController.dispose();
     controller.searchController.removeListener(controller.onSearchChanged);
     controller.debounce?.cancel();
 
