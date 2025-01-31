@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
-import 'package:task1/provider/task_provider.dart';
 import 'package:task1/sreens/add_task_screen.dart';
 
 class WelcomeTextWidget extends StatelessWidget {

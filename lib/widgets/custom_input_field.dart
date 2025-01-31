@@ -52,10 +52,8 @@ class _CustomInputFieldState extends State<CustomInputField> {
     );
 
     if (selectedDate != null) {
-      final String formattedDate = "${selectedDate.toLocal()}"
-          .split(' ')[0]; // Formatting the date as YYYY-MM-DD
-      widget.onDateSelected?.call(
-          formattedDate); // Call the callback to update the date in controller
+      final String formattedDate = "${selectedDate.toLocal()}".split(' ')[0];
+      widget.onDateSelected?.call(formattedDate);
     }
   }
 
