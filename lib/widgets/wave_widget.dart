@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:wave/wave.dart';
 import 'package:wave/config.dart';
 
@@ -9,13 +10,14 @@ class WaveContainer extends StatelessWidget {
   final double waveHeightPercentage;
   final double completedTasksPercentage;
   final List<Color> colors;
+  final double percentage;
 
-  WaveContainer({
-    required this.title,
-    required this.waveHeightPercentage,
-    required this.completedTasksPercentage,
-    required this.colors,
-  });
+  WaveContainer(
+      {required this.title,
+      required this.waveHeightPercentage,
+      required this.completedTasksPercentage,
+      required this.colors,
+      required this.percentage});
 
   @override
   Widget build(BuildContext context) {
@@ -52,14 +54,15 @@ class WaveContainer extends StatelessWidget {
           ),
           Positioned(
             bottom: 10,
-            child: Text(
-              title,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: Text('$title - ${percentage.toStringAsFixed(2)}%',
+                style: GoogleFonts.metrophobic(
+                  textStyle: TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: .5,
+                  ),
+                )),
           ),
         ],
       ),

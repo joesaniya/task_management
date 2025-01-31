@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:task1/models/task.dart';
 import 'package:task1/provider/task_provider.dart';
@@ -117,7 +118,7 @@ class _TaskListScreenState extends State<TaskListScreen> {
           body: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 28.0),
             child: SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
+              physics: const AlwaysScrollableScrollPhysics(),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -131,7 +132,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Icon(Icons.menu),
+                            Icon(
+                              Icons.menu,
+                            ),
                             Container(
                               child: Row(
                                 children: [
@@ -143,7 +146,10 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                           .showSnackBar(SnackBar(
                                               content: Text("Tasks Exported")));
                                     },
-                                    icon: Icon(Icons.file_upload),
+                                    icon: Icon(
+                                      Icons.file_upload,
+                                      color: Colors.deepPurple,
+                                    ),
                                     tooltip: 'Export Tasks',
                                   ),
                                   IconButton(
@@ -154,7 +160,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                           .showSnackBar(SnackBar(
                                               content: Text("Tasks Imported")));
                                     },
-                                    icon: Icon(Icons.file_download),
+                                    icon: Icon(Icons.file_download,
+                                        color: Colors.deepPurple),
                                     tooltip: 'Import Tasks',
                                   ),
                                   _connectionStatus.first ==
@@ -164,7 +171,8 @@ class _TaskListScreenState extends State<TaskListScreen> {
                                           onPressed: () {
                                             taskProvider.syncTasks();
                                           },
-                                          icon: Icon(Icons.cloud))
+                                          icon: Icon(Icons.cloud,
+                                              color: Colors.deepPurple))
                                 ],
                               ),
                             )
@@ -176,6 +184,9 @@ class _TaskListScreenState extends State<TaskListScreen> {
                   _connectionStatus.first == ConnectivityResult.none
                       ? ConnectivityStatus()
                       : SizedBox(),
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.05,
+                  ),
                   WelcomeTextWidget(),
                   GridView.count(
                     shrinkWrap: true,
@@ -188,24 +199,28 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         waveHeightPercentage: overdueWaveHeight,
                         completedTasksPercentage: completedTasksPercentage,
                         colors: [Colors.red, Colors.red.shade900],
+                        percentage: overdueTasksPercentage,
                       ),
                       WaveContainer(
                         title: "Low Priority",
                         waveHeightPercentage: lowPriorityWaveHeight,
                         completedTasksPercentage: completedTasksPercentage,
                         colors: [Colors.green, Colors.green.shade900],
+                        percentage: lowPriorityPercentage,
                       ),
                       WaveContainer(
                         title: "Medium Priority",
                         waveHeightPercentage: mediumPriorityWaveHeight,
                         completedTasksPercentage: completedTasksPercentage,
                         colors: [Colors.blue, Colors.blue.shade900],
+                        percentage: mediumPriorityPercentage,
                       ),
                       WaveContainer(
                         title: "High Priority",
                         waveHeightPercentage: highPriorityWaveHeight,
                         completedTasksPercentage: completedTasksPercentage,
                         colors: [Colors.orange, Colors.orange.shade900],
+                        percentage: highPriorityPercentage,
                       ),
                     ],
                   ),
@@ -215,8 +230,14 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         ListTile(
                           title: Text(
                             'Overdue Tasks (${overdueTasks.length} - ${overdueTasksPercentage.toStringAsFixed(1)}%)',
-                            style: TextStyle(
-                                color: Colors.red, fontWeight: FontWeight.bold),
+                            style: GoogleFonts.metrophobic(
+                              textStyle: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.red,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: .5,
+                              ),
+                            ),
                           ),
                         ),
                         ...overdueTasks
@@ -228,7 +249,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         ListTile(
                           title: Text(
                             'Low Priority Tasks (${lowPriorityTasks.length} - ${lowPriorityPercentage.toStringAsFixed(1)}%)',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: .5,
+                            ),
                           ),
                         ),
                         ...lowPriorityTasks
@@ -240,7 +266,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         ListTile(
                           title: Text(
                             'Medium Priority Tasks (${mediumPriorityTasks.length} - ${mediumPriorityPercentage.toStringAsFixed(1)}%)',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: .5,
+                            ),
                           ),
                         ),
                         ...mediumPriorityTasks
@@ -252,7 +283,12 @@ class _TaskListScreenState extends State<TaskListScreen> {
                         ListTile(
                           title: Text(
                             'High Priority Tasks (${highPriorityTasks.length} - ${highPriorityPercentage.toStringAsFixed(1)}%)',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: .5,
+                            ),
                           ),
                         ),
                         ...highPriorityTasks
@@ -265,17 +301,6 @@ class _TaskListScreenState extends State<TaskListScreen> {
                 ],
               ),
             ),
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => AddTaskScreen(),
-                ),
-              );
-            },
-            child: Icon(Icons.add),
           ),
         );
       },

@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:iconsax/iconsax.dart';
 import 'package:provider/provider.dart';
 import 'package:task1/widgets/custom_dropdown-widget.dart';
+import 'package:task1/widgets/custom_input_field.dart';
 import 'package:task1/widgets/custom_textfield.dart';
 import 'package:task1/widgets/text_widget.dart';
 import '../provider/task_provider.dart';
@@ -98,7 +101,7 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
           padding: const EdgeInsets.symmetric(horizontal: 10),
-          height: MediaQuery.of(context).size.height * 0.6,
+          height: MediaQuery.of(context).size.height * 0.7,
           width: double.infinity,
           decoration: BoxDecoration(
             color: Theme.of(context).cardColor,
@@ -111,127 +114,154 @@ class _AddTaskScreenState extends State<AddTaskScreen> {
               ),
             ],
           ),
-          child: Form(
-            key: _formKey, // Assigning the form key
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                AnimatedOpacity(
-                  opacity: isAnimated ? 1.0 : 0.0,
-                  duration: Duration(seconds: 1),
-                  child: TextWidget(
-                    text: widget.task != null ? 'Edit Task' : 'Add Task',
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+          child: SingleChildScrollView(
+            physics: AlwaysScrollableScrollPhysics(),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.01,
                   ),
-                ),
-                AnimatedOpacity(
-                  opacity: isAnimated ? 1.0 : 0.0,
-                  duration: Duration(seconds: 1),
-                  child: CustomTextField(
+                  AnimatedOpacity(
+                    opacity: isAnimated ? 1.0 : 0.0,
+                    duration: Duration(seconds: 1),
+                    child: TextWidget(
+                      text: widget.task != null ? 'Edit Task' : 'Add Task',
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  CustomInputField(
+                    label: 'Task Title',
+                    hintText: 'Enter your task title',
                     controller: _titleController,
-                    labelText: 'Task Title',
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a task title';
                       }
                       return null;
                     },
+                    inputType: TextInputType.text,
+                    backgroundColor:
+                        Theme.of(context).inputDecorationTheme.fillColor,
                   ),
-                ),
-                AnimatedOpacity(
-                  opacity: isAnimated ? 1.0 : 0.0,
-                  duration: Duration(seconds: 1),
-                  child: CustomTextField(
+                  CustomInputField(
+                    label: 'Task Description',
+                    hintText: 'Enter your task description',
                     controller: _descriptionController,
-                    labelText: 'Task Description',
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a description';
+                        return 'Please enter a task description';
                       }
                       return null;
                     },
+                    inputType: TextInputType.text,
+                    backgroundColor:
+                        Theme.of(context).inputDecorationTheme.fillColor,
                   ),
-                ),
-                AnimatedOpacity(
-                  opacity: isAnimated ? 1.0 : 0.0,
-                  duration: Duration(seconds: 1),
-                  child: CustomDropdown(
-                    value: _priority,
-                    items: ['High', 'Medium', 'Low'],
-                    labelText: 'Priority',
-                    onChanged: (value) {
-                      setState(() {
-                        _priority = value!;
-                      });
-                    },
+                  AnimatedOpacity(
+                    opacity: isAnimated ? 1.0 : 0.0,
+                    duration: Duration(seconds: 1),
+                    child: CustomDropdown(
+                      value: _priority,
+                      title: 'Priority',
+                      items: ['High', 'Medium', 'Low'],
+                      labelText: 'Priority',
+                      onChanged: (value) {
+                        setState(() {
+                          _priority = value!;
+                        });
+                      },
+                    ),
                   ),
-                ),
-                AnimatedOpacity(
-                  opacity: isAnimated ? 1.0 : 0.0,
-                  duration: Duration(seconds: 1),
-                  child: CustomDropdown(
-                    value: _status,
-                    items: ['Pending', 'Completed'],
-                    labelText: 'Status',
-                    onChanged: (value) {
-                      setState(() {
-                        _status = value!;
-                      });
-                    },
+                  AnimatedOpacity(
+                    opacity: isAnimated ? 1.0 : 0.0,
+                    duration: Duration(seconds: 1),
+                    child: CustomDropdown(
+                      title: 'Status',
+                      value: _status,
+                      items: ['Pending', 'Completed'],
+                      labelText: 'Status',
+                      onChanged: (value) {
+                        setState(() {
+                          _status = value!;
+                        });
+                      },
+                    ),
                   ),
-                ),
-                AnimatedOpacity(
-                  opacity: isAnimated ? 1.0 : 0.0,
-                  duration: Duration(seconds: 1),
-                  child: TextFormField(
+                  CustomInputField(
+                    label: 'Date',
+                    hintText: 'Pick the date',
                     controller: _endDateController,
-                    readOnly: true,
-                    onTap: _pickDate,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please select an end date';
-                      }
-                      return null;
+                    isDatePicker: true,
+                    onDateSelected: (date) {
+                      log('date picker');
+                      _endDateController.text = date;
                     },
-                    decoration: InputDecoration(
-                      labelText: 'End Date',
-                      suffixIcon: Icon(Iconsax.calendar),
-                      labelStyle: GoogleFonts.metrophobic(
-                        textStyle: TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.normal,
-                          letterSpacing: .5,
+                    backgroundColor:
+                        Theme.of(context).inputDecorationTheme.fillColor,
+                  ),
+                  /*   AnimatedOpacity(
+                    opacity: isAnimated ? 1.0 : 0.0,
+                    duration: Duration(seconds: 1),
+                    child: TextFormField(
+                      controller: _endDateController,
+                      readOnly: true,
+                      onTap: _pickDate,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Please select an end date';
+                        }
+                        return null;
+                      },
+                      decoration: InputDecoration(
+                        labelText: 'End Date',
+                        suffixIcon: Icon(Iconsax.calendar),
+                        labelStyle: GoogleFonts.metrophobic(
+                          textStyle: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.normal,
+                            letterSpacing: .5,
+                          ),
                         ),
+                        border: OutlineInputBorder(),
                       ),
-                      border: OutlineInputBorder(),
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: double.infinity,
-                  height: 50,
-                  child: ElevatedButton(
-                    onPressed: _saveTask,
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.deepPurple,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      textStyle: GoogleFonts.metrophobic(
-                        textStyle: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: .5,
+               */
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.03,
+                  ),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: ElevatedButton(
+                      onPressed: _saveTask,
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.deepPurple,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        textStyle: GoogleFonts.metrophobic(
+                          textStyle: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: .5,
+                          ),
                         ),
                       ),
+                      child: Text(
+                          widget.task != null ? 'Update Task' : 'Save Task'),
                     ),
-                    child:
-                        Text(widget.task != null ? 'Update Task' : 'Save Task'),
                   ),
-                ),
-              ],
+                  SizedBox(
+                    height: MediaQuery.of(context).viewInsets.bottom,
+                  )
+                ],
+              ),
             ),
           ),
         ),
